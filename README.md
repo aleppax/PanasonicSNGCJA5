@@ -26,7 +26,7 @@ More details about [Raspberry Pico pinout](https://www.raspberrypi.com/documenta
 
 ```micropython
 from machine import Pin, I2C
-from pico-sngcja5 import SNGCJA5
+from picosngcja5 import SNGCJA5
 
 
 # If SDA and SCL are connected to I2C bus 0, then:
