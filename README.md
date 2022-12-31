@@ -23,7 +23,7 @@ More details about [Raspberry Pico pinout](https://www.raspberrypi.com/documenta
   
 ## **Status register**
 
-The Panasonic SN-GCJA5 has a proprietary logic capable of monitoring the status of critical parts and compensating with software correction in order to maintain a certain level of performance during the lifetime. 
+The Panasonic SN-GCJA5 has a proprietary logic capable of monitoring the status of critical parts and compensating with software correction in order to maintain a certain level of performance during the lifetime (expected lifetime of 5 years at 25°C, 60%RH on continuous current). 
 
 ### Particle Detect status [bit5][bit4]
 0. Normal status
