@@ -2,7 +2,7 @@
 
 ## **Introduction**
 
-Micropython driver for Panasonic SN-GCJA5 particulate matter (PM) sensor. Tested on Raspberry Pi Zero/Zero W/3B+/4B<br>
+Micropython driver for Panasonic SN-GCJA5 particulate matter (PM) sensor. Tested on Raspberry Pico W<br>
 Port from [sngcja5](https://github.com/dvsu/PanasonicSNGCJA5)
 
 ## **Wiring**
