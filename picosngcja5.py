@@ -37,6 +37,7 @@ PM5.0: byte 20 - byte 21
 PM7.5: byte 22 - byte 23
 PM10: byte 24 - byte 25
 '''
+STATUS_ADDRESS = 0x26
 
 # Total raw data length stored in sensor register, i.e. 26 bytes
 DATA_LENGTH_HEAD = ADDRESS_MASS_DENSITY_HEAD
@@ -74,6 +75,10 @@ class SNGCJA5:
                 for pm_type, address in self.__particle_count_addresses.items()
                 if pm_type != "N/A"}
 
+    def get_status_data(self) -> dict:
+        status_register = self.i2c.readfrom_mem(self.address,STATUS_ADDRESS,1)[0]
+        return {'status_register': status_register}
+    
     def __read_sensor_data(self) -> None:
         try:
             data = self.i2c.readfrom_mem(self.address, DATA_LENGTH_HEAD, TOTAL_DATA_LENGTH)
