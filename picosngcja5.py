@@ -100,7 +100,7 @@ class SNGCJA5:
             self.__read_sensor_data()
             sleep(1)
         results = self.__data
-        self.empty_measurements_cache()
+        self.empty_measurements_queue()
         return results
 
     def get_measurement(self) -> dict:
