@@ -75,9 +75,15 @@ class SNGCJA5:
                 for pm_type, address in self.__particle_count_addresses.items()
                 if pm_type != "N/A"}
 
+    def zfl(self, s, width):
+        # Pads the provided string with leading 0's to suit the specified 'chrs' length
+        # Force # characters, fill with leading 0's
+        return '{:0>{w}}'.format(s, w=width)
+
     def get_status_data(self) -> dict:
-        status_register = self.i2c.readfrom_mem(self.address,STATUS_ADDRESS,1)[0]
-        return {'status_register': status_register}
+        status_register = self.i2c.readfrom_mem(self.address,STATUS_ADDRESS,1)
+        bit_status_register = bin(int(status_register.hex(),8))[2:]
+        return {'status_register': self.zfl(bit_status_register,8)}
     
     def __read_sensor_data(self) -> None:
         try:
