@@ -21,6 +21,33 @@ Please refer to sensor specification sheet and table below for wiring guide.
 
 More details about [Raspberry Pico pinout](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html)
   
+## **Status register**
+
+The Panasonic SN-GCJA5 has a proprietary logic capable of monitoring the status of critical parts and compensating with software correction in order to maintain a certain level of performance during the lifetime. 
+
+### Particle Detect status [bit5][bit4]
+0. Normal status
+1. Normal status (within -80% against initial value), with S/W correction
+2. Abnormal (below -90% against initial value), loss of function
+3. Abnormal (below -80% against initial value), with S/W correction
+
+### LED operational status [bit3][bit2]
+0. Normal status
+1. Normal status (within -70% against initial LOP), with S/W correction
+2. Abnormal (below -90% against initial LOP) or no LOP, loss of function
+3. Abnormal (below -70% against initial LOP), with S/W correction
+
+### PWM Fan operational status [bit1][bit0]
+0. Normal status
+1. Normal status (1,000rpm or more), with S/W correction
+2. In initial calibration
+3. Abnormal (below 1,000rpm), out of control
+
+### Overall sensor status [bit7][bit6]
+0. everything is fine, thanks, I appreciate your interest
+1. any one of Particle detect, LED, PWM statuses
+2. any two of Particle detect, LED, PWM statuses
+3. any three of Particle detect, LED, PWM statuses
 
 ## **Examples**
 
