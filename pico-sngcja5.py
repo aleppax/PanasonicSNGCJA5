@@ -1,11 +1,4 @@
-import sys
-import logging
-import threading
-import smbus
 from time import sleep
-from queue import Queue
-from datetime import datetime
-
 
 MASS_DENSITY_PM_TYPES = ["pm1.0", "pm2.5", "pm10"]
 MASS_DENSITY_BLOCK_SIZE = 4
@@ -53,24 +46,17 @@ TOTAL_DATA_LENGTH = ADDRESS_MASS_DENSITY_LENGTH + ADDRESS_PARTICLE_COUNT_LENGTH
 
 class SNGCJA5:
 
-    def __init__(self, i2c_bus_no:int, logger:str=None):
-        self.logger = None
-        if logger:
-            self.logger = logging.getLogger(logger)
-        self.i2c_address = 0x33
-        try:
-            self.i2c_bus = smbus.SMBus(i2c_bus_no)
-        except OSError as e:
-            print("OSError")
-            print(e)
+    def __init__(self, i2c, addr=0x33):
+        self.address = addr
+        self.i2c = i2c
         self.__mass_density_addresses = {pm_type: MASS_DENSITY_BLOCK_SIZE*order 
                                             for order, pm_type in enumerate(MASS_DENSITY_PM_TYPES)}
 
         self.__particle_count_addresses = {pm_type: PARTICLE_COUNT_BLOCK_SIZE*order
                                             for order, pm_type in enumerate(PARTICLE_COUNT_PM_TYPES)}
 
-        self.__data = Queue(maxsize=20)
-        self.__run()
+        self.__data = []
+        self.__read_sensor_data()
 
     def get_mass_density_data(self, data:list) -> dict:
 
@@ -89,57 +75,38 @@ class SNGCJA5:
                 if pm_type != "N/A"}
 
     def __read_sensor_data(self) -> None:
+        try:
+            data = self.i2c.readfrom_mem(self.address, DATA_LENGTH_HEAD, TOTAL_DATA_LENGTH)
 
-        while True:
+            mass_density_data = self.get_mass_density_data(data[ADDRESS_MASS_DENSITY_HEAD:ADDRESS_MASS_DENSITY_TAIL+1])
+            particle_count_data = self.get_particle_count_data(data[ADDRESS_PARTICLE_COUNT_HEAD:ADDRESS_PARTICLE_COUNT_TAIL+1])
 
-            try:
-                data = self.i2c_bus.read_i2c_block_data(self.i2c_address, DATA_LENGTH_HEAD, TOTAL_DATA_LENGTH)
-
-                mass_density_data = self.get_mass_density_data(data[ADDRESS_MASS_DENSITY_HEAD:ADDRESS_MASS_DENSITY_TAIL+1])
-                particle_count_data = self.get_particle_count_data(data[ADDRESS_PARTICLE_COUNT_HEAD:ADDRESS_PARTICLE_COUNT_TAIL+1])
-
-                if self.__data.full():
-                    self.__data.get()
-
-                self.__data.put({
-                    "sensor_data": {
-                        "mass_density": mass_density_data,
-                        "particle_count": particle_count_data,
-                        "mass_density_unit": "ug/m3",
-                        "particle_count_unit": "none"
-                    },
-                    "timestamp": int(datetime.now().timestamp())
+            self.__data.append({
+                    "mass_density": mass_density_data,
+                    "particle_count": particle_count_data
                 })
+            #print(mass_density_data)
 
-            except KeyboardInterrupt:
-                sys.exit()
+        except OSError as e:
+            print(f"{type(e).__name__}: {e}")
+            print("Sensor is not detected on I2C bus. Terminating...")
 
-            except OSError as e:
-                if self.logger:
-                    self.logger.warning(f"{type(e).__name__}: {e}")
-                    self.logger.warning("Sensor is not detected on I2C bus. Terminating...")
-                else:
-                    print(f"{type(e).__name__}: {e}")
-                    print("Sensor is not detected on I2C bus. Terminating...")
+        except Exception as e:
+            print(f"{type(e).__name__}: {e}")
 
-                sys.exit(1)
 
-            except Exception as e:
-                if self.logger:
-                    self.logger.warning(f"{type(e).__name__}: {e}")
-                else:
-                    print(f"{type(e).__name__}: {e}")
-
-            finally:
-                # Data is updated by sensor every 1 second as per specification. 
-                # 1-second delay is added to compensate data duplication
-                sleep(1) 
+    def measurements_serie(self,times):
+        for n in range(times):
+            self.__read_sensor_data()
+            sleep(1)
+        results = self.__data
+        self.empty_measurements_cache()
+        return results
 
     def get_measurement(self) -> dict:
-        if self.__data.empty():
+        if self.__data == []:
             return {}
-
-        return self.__data.get()
-
-    def __run(self):
-        threading.Thread(target=self.__read_sensor_data, daemon=True).start()
+        return self.__data.pop(0)
+    
+    def empty_measurements_queue(self):
+        self.__data = []
