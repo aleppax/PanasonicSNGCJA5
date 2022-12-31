@@ -4,6 +4,7 @@
 
 Micropython driver for Panasonic SN-GCJA5 particulate matter (PM) sensor. Tested on Raspberry Pico W<br>
 Port from [sngcja5](https://github.com/dvsu/PanasonicSNGCJA5)
+The sensor updates each data every 1 sec.
 
 ## **Wiring**
 
@@ -24,6 +25,11 @@ More details about [Raspberry Pico pinout](https://www.raspberrypi.com/documenta
 ## **Status register**
 
 The Panasonic SN-GCJA5 has a proprietary logic capable of monitoring the status of critical parts and compensating with software correction in order to maintain a certain level of performance during the lifetime (expected lifetime of 5 years at 25°C, 60%RH on continuous current). 
+
+```micropython
+pm_sensor.get_status_data()
+{'status_register': '00000000'} 
+```
 
 ### Particle Detect status [bit5][bit4]
 0. Normal status
