@@ -45,9 +45,9 @@ The Panasonic SN-GCJA5 has a proprietary logic capable of monitoring the status 
 
 ### Overall sensor status [bit7][bit6]
 0. everything is fine, thanks, I appreciate your interest
-1. any one of Particle detect, LED, PWM statuses
-2. any two of Particle detect, LED, PWM statuses
-3. any three of Particle detect, LED, PWM statuses
+1. Abnormal status for any one of Particle detect, LED, PWM statuses
+2. Abnormal status for any two of Particle detect, LED, PWM statuses
+3. Abnormal status for any three of Particle detect, LED, PWM statuses
 
 ## **Examples**
 
