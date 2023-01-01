@@ -56,10 +56,11 @@ class SNGCJA5:
         self.__particle_count_addresses = {pm_type: PARTICLE_COUNT_BLOCK_SIZE*order
                                             for order, pm_type in enumerate(PARTICLE_COUNT_PM_TYPES)}
 
+        self.status_addresses = {"Sensor status": 6, "PD Status": 4, "LD Status": 2, "Fan status": 0}
         self.__data = []
-        self.__read_sensor_data()
+        self.get_status_data()
 
-    def get_mass_density_data(self, data:list) -> dict:
+    def get_mass_density_data(self, data:list):
 
         return {pm_type: 
             float((data[address+3] << 24 | 
@@ -68,7 +69,7 @@ class SNGCJA5:
                 data[address]) / 1000) 
                 for pm_type, address in self.__mass_density_addresses.items()}
 
-    def get_particle_count_data(self, data:list) -> dict:
+    def get_particle_count_data(self, data:list):
 
         return {pm_type: 
             float((data[address+1] << 8 | data[address])) 
@@ -80,11 +81,11 @@ class SNGCJA5:
         # Force # characters, fill with leading 0's
         return '{:0>{w}}'.format(s, w=width)
 
-    def get_status_data(self) -> dict:
+    def get_status_data(self):
         status_register = self.i2c.readfrom_mem(self.address,STATUS_ADDRESS,1)
         bit_status_register = bin(int(status_register.hex(),8))[2:]
         return {'status_register': self.zfl(bit_status_register,8)}
-    
+
     def __read_sensor_data(self) -> None:
         try:
             data = self.i2c.readfrom_mem(self.address, DATA_LENGTH_HEAD, TOTAL_DATA_LENGTH)
@@ -114,9 +115,14 @@ class SNGCJA5:
         self.empty_measurements_queue()
         return results
 
-    def get_measurement(self) -> dict:
+    def get_measurement(self):
         if self.__data == []:
             return {}
+        return self.__data.pop(0)
+    
+    def measure(self):
+        self.empty_measurements_queue()
+        self.__read_sensor_data()
         return self.__data.pop(0)
     
     def empty_measurements_queue(self):
