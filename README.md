@@ -69,12 +69,11 @@ pm_sensor = SNGCJA5(i2c)
 
 
 # The get_measurement method returns a dictionary of all measurement value 
-result = pm_sensor.get_measurement()
+result = pm_sensor.measure()
 
 print(result)
 '''
     Structure of result
-[
     {
     'mass_density': {
         'pm10': <float>,
@@ -90,7 +89,6 @@ print(result)
         'pm0.5': <float>
         }
     }
-]
 '''
 
 ```
