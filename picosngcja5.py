@@ -1,4 +1,5 @@
 from time import sleep
+import sys
 
 MASS_DENSITY_PM_TYPES = ["pm1.0", "pm2.5", "pm10"]
 MASS_DENSITY_BLOCK_SIZE = 4
@@ -83,7 +84,7 @@ class SNGCJA5:
 
     def get_status_data(self):
         status_register = self.i2c.readfrom_mem(self.address,STATUS_ADDRESS,1)
-        bit_status_register = bin(int(status_register.hex(),8))[2:]
+        bit_status_register = bin(int.from_bytes(status_register, sys.byteorder))[2:]
         return {'status_register': self.zfl(bit_status_register,8)}
 
     def __read_sensor_data(self) -> None:
